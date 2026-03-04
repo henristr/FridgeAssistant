@@ -5,6 +5,6 @@
   "documentation": "",
   "requirements": ["requests"],
   "dependencies": [],
-  "codeowners": ["@deinGithubName"],
+  "codeowners": ["@henristr"],
   "config_flow": true
 }
