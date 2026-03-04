@@ -9,10 +9,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     
     # Serve the static card file
     path = os.path.dirname(__file__)
-    hass.http.register_static_path(
-        "/fridge_assistant_static", 
-        os.path.join(path, "fridge-assistant-card.js")
-    )
+    file_path = os.path.join(path, "fridge-assistant-card.js")
+    
+    # Register static path (Compatibility for newer HA versions 2025.7+)
+    if hasattr(hass.http, "async_register_static_paths"):
+        from homeassistant.components.http import StaticPathConfig
+        await hass.http.async_register_static_paths([
+            StaticPathConfig("/fridge_assistant_static", file_path, True)
+        ])
+    else:
+        # Fallback for older HA versions
+        hass.http.register_static_path("/fridge_assistant_static", file_path)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
