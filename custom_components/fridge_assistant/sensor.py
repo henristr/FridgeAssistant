@@ -3,12 +3,9 @@ from datetime import datetime
 from homeassistant.helpers.entity import Entity
 from . import DOMAIN
 
-
 def setup_platform(hass, config, add_entities, discovery_info=None):
-    # holen die Konfigurationsdaten
-    conf = hass.data[DOMAIN]
+    conf = hass.data.get(DOMAIN)
     add_entities([FridgeAssistantJuFoSensor(conf)])
-
 
 class FridgeAssistantJuFoSensor(Entity):
     def __init__(self, conf):
