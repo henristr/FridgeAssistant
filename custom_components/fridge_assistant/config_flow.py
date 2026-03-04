@@ -20,6 +20,6 @@ class FridgeAssistantConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         schema = vol.Schema({
             vol.Required("url"): str,
             vol.Required("api_key"): str,
-            vol.Required("user", default="JuFo"): str
+            vol.Required("user"): str
         })
         return self.async_show_form(step_id="user", data_schema=schema)
