@@ -16,21 +16,18 @@ FridgeAssistant ist eine Home Assistant Integration, die Produkte aus deiner API
 4. Unter **Einstellungen → Geräte & Dienste** nach "FridgeAssistant" suchen und konfigurieren.
 
 ## Lovelace Card (Fridge Assistant Card)
-Die Karte wird automatisch mit der Integration installiert. Du musst sie nur noch als Ressource registrieren:
+Die Karte wird automatisch mit der Integration installiert und registriert. Du musst nichts weiter tun!
 
-### Schritt 1: Ressource registrieren
-1. Gehe zu **Einstellungen → Dashboards**.
-2. Klicke oben rechts auf die drei Punkte → **Ressourcen**.
-3. Klicke auf **Ressource hinzufügen**.
-4. Gib folgende Daten ein:
-   - **URL**: `/fridge_assistant_static`
-   - **Typ**: `JavaScript-Modul`
-5. Speichern und Browser neu laden (F5).
-
-### Schritt 2: Karte nutzen
+### Benutzung
 Füge eine neue Karte zu deinem Dashboard hinzu:
+1. Gehe in den Dashboard-Bearbeitungsmodus (Drei Punkte oben rechts → Dashboard bearbeiten).
+2. Klicke auf **Karte hinzufügen**.
+3. Suche nach "Fridge Assistant Card" oder wähle ganz unten **Manuell**.
+4. Gib folgenden Code ein:
 ```yaml
 type: custom:fridge-assistant-card
 entity: sensor.fridgeassistant_deinname_produkte
 title: Mein Kühlschrank
 ```
+
+*Falls die Karte nach der Installation nicht sofort erscheint, lade die Seite im Browser einmal komplett neu (**Strg + F5**).*
