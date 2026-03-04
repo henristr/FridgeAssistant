@@ -3,7 +3,7 @@
 FridgeAssistant ist eine Home Assistant Integration, die Produkte aus deiner API abruft, nach Benutzer filtert und nach Ablaufdatum sortiert.
 
 ## Features
-- Filtert nach Benutzer (z.B. JuFo)
+- Filtert nach Benutzer
 - Sortiert nach Ablaufdatum
 - Zeigt abgelaufene Produkte rot an
 - Benutzer gibt URL, API-Key und Benutzername bei der Einrichtung ein
