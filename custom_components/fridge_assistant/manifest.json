@@ -3,8 +3,13 @@
   "name": "FridgeAssistant",
   "version": "1.0.0",
   "documentation": "https://docs.henristr.de/share/67ql3pqwwj/p/smart-fridge-installation-iKotdAW5TPt",
-  "requirements": ["requests"],
+  "requirements": [
+    "requests"
+  ],
   "dependencies": [],
-  "codeowners": ["@henristr"],
-  "config_flow": true
+  "codeowners": [
+    "@henristr"
+  ],
+  "config_flow": true,
+  "iot_class": "cloud_polling"
 }

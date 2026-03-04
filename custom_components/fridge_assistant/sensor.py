@@ -1,24 +1,35 @@
 import requests
-from datetime import datetime
+import functools
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
-from . import DOMAIN
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-def setup_platform(hass, config, add_entities, discovery_info=None):
-    conf = hass.data.get(DOMAIN)
-    add_entities([FridgeAssistantJuFoSensor(conf)])
+from .const import DOMAIN
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up the FridgeAssistant sensor from a config entry."""
+    config = entry.data
+    async_add_entities([FridgeAssistantJuFoSensor(config, entry.entry_id)], True)
 
 class FridgeAssistantJuFoSensor(Entity):
-    def __init__(self, conf):
-        self.url = conf["url"]
-        self.api_key = conf["api_key"]
-        self.user = conf["user"]
+    def __init__(self, config, entry_id):
+        self._config = config
+        self._entry_id = entry_id
+        self._url = config["url"]
+        self._api_key = config["api_key"]
+        self._user = config["user"]
         self._state = 0
         self._attributes = {"liste": []}
-        self.update()
+        self._attr_unique_id = f"{entry_id}_{self._user}"
 
     @property
     def name(self):
-        return f"FridgeAssistant {self.user} Produkte"
+        return f"FridgeAssistant {self._user} Produkte"
 
     @property
     def state(self):
@@ -28,16 +39,22 @@ class FridgeAssistantJuFoSensor(Entity):
     def extra_state_attributes(self):
         return self._attributes
 
-    def update(self):
-        headers = {"API-KEY": self.api_key}
+    async def async_update(self):
+        """Update the sensor state."""
+        headers = {"API-KEY": self._api_key}
         try:
-            r = requests.get(self.url, headers=headers)
+            r = await self.hass.async_add_executor_job(
+                functools.partial(requests.get, self._url, headers=headers, timeout=10)
+            )
             data = r.json()
-            user_items = data.get(self.user, [])
+            user_items = data.get(self._user, [])
             user_items.sort(key=lambda x: x.get("ablauf") or "9999-12-31")
             self._state = len(user_items)
             self._attributes["liste"] = user_items
         except Exception as e:
             self._state = 0
             self._attributes["liste"] = []
-            print("FridgeAssistant Sensor Fehler:", e)
+            # We should use logger here instead of print for HACS
+            import logging
+            _LOGGER = logging.getLogger(__name__)
+            _LOGGER.error("FridgeAssistant Sensor Fehler: %s", e)

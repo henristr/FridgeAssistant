@@ -1,7 +1,7 @@
 import voluptuous as vol
 from homeassistant import config_entries
 
-DOMAIN = "fridge_assistant"
+from .const import DOMAIN
 
 class FridgeAssistantConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1

@@ -1,0 +1,23 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "FridgeAssistant",
+                "description": "Bitte gib deine API-Daten ein.",
+                "data": {
+                    "url": "API URL",
+                    "api_key": "API Key",
+                    "user": "Benutzername"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Verbindung fehlgeschlagen",
+            "invalid_auth": "Ungültiger API-Key",
+            "unknown": "Unerwarteter Fehler"
+        },
+        "abort": {
+            "already_configured": "Dieses Gerät wurde bereits konfiguriert"
+        }
+    }
+}
