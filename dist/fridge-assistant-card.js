@@ -1,4 +1,7 @@
-/* Fridge Assistant Lovelace Card */
+/*
+  Fridge Assistant Lovelace Card
+  Version: 1.1.0
+*/
 import {
   LitElement,
   html,
@@ -8,8 +11,8 @@ import {
 class FridgeAssistantCard extends LitElement {
   static get properties() {
     return {
-      hass: {},
-      config: {},
+      hass: { type: Object },
+      config: { type: Object },
     };
   }
 
@@ -130,10 +133,10 @@ class FridgeAssistantCard extends LitElement {
           <div class="count">${sortedItems.length} Produkte</div>
         </div>
         <div class="product-list">
-          ${sortedItems.length === 0 
-            ? html`<div class="empty-state">Keine Produkte verfügbar</div>`
-            : sortedItems.map(item => this._renderProduct(item))
-          }
+          ${sortedItems.length === 0
+        ? html`<div class="empty-state">Keine Produkte verfügbar</div>`
+        : sortedItems.map(item => this._renderProduct(item))
+      }
         </div>
       </ha-card>
     `;
@@ -142,7 +145,7 @@ class FridgeAssistantCard extends LitElement {
   _renderProduct(item) {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    
+
     // Parse date safely
     let statusClass = "";
     if (item.ablauf) {
