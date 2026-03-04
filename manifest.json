@@ -1,0 +1,10 @@
+{
+  "domain": "fridgeassistant",
+  "name": "FridgeAssistant by SmartFridge",
+  "version": "1.0.0",
+  "documentation": "",
+  "requirements": ["requests"],
+  "dependencies": [],
+  "codeowners": ["@deinGithubName"],
+  "config_flow": true
+}
