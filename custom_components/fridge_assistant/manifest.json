@@ -1,8 +1,8 @@
 {
-  "domain": "fridgeassistant",
-  "name": "FridgeAssistant by SmartFridge",
+  "domain": "fridge_assistant",
+  "name": "FridgeAssistant",
   "version": "1.0.0",
-  "documentation": "",
+  "documentation": "https://docs.henristr.de/share/67ql3pqwwj/p/smart-fridge-installation-iKotdAW5TPt",
   "requirements": ["requests"],
   "dependencies": [],
   "codeowners": ["@henristr"],
