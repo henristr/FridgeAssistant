@@ -1,5 +1,1 @@
-{
-  "name": "FridgeAssistant",
-  "render_readme": true,
-  "homeassistant": "2024.1.0"
-}
+{\n  "name": "FridgeAssistant",\n  "render_readme": true,\n  "homeassistant": "2024.1.0",\n  "javascript_url": "/fridge_assistant_static"\n}
