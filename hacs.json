@@ -2,4 +2,5 @@
   "name": "FridgeAssistant",
   "render_readme": true,
   "homeassistant": "2024.1.0"
+  "filename": "fridge-assistant-card.js"
 }
