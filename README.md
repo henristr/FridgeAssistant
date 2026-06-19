@@ -3,7 +3,7 @@
 FridgeAssistant ist eine Home Assistant Integration, die Produkte aus deiner API abruft, nach Benutzer filtert und nach Ablaufdatum sortiert.
 
 # Dokumentation:
-https://docs.henristr.de/share/67ql3pqwwj/p/smart-fridge-installation-iKotdAW5TP
+https://opensmartfridge.de/docs
 
 ## Features
 - Filtert nach Benutzer
