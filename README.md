@@ -13,6 +13,7 @@ https://opensmartfridge.de/docs
 - **NEU:** Inklusive Lovelace Card für eine wunderschöne Darstellung.
 
 ## Integration Installation
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=henristr&repository=FridgeAssistant&category=integration)
 1. Über HACS → "Benutzerdefinierte Repositories" → Typ: **Integration**
 2. Repository URL: `https://github.com/henristr/FridgeAssistant`
 3. Integration installieren → Home Assistant Neustart
