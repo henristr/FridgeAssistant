@@ -2,12 +2,11 @@
     "config": {
         "step": {
             "user": {
-                "title": "FridgeAssistant",
+                "title": "OpenSmartFridge",
                 "description": "Please enter your API details.",
                 "data": {
-                    "url": "API URL",
-                    "api_key": "API Key",
-                    "user": "Username"
+                    "base_url": "Base URL",
+                    "key": "Key"
                 }
             }
         },
