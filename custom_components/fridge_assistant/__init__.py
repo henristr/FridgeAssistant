@@ -15,7 +15,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     path = os.path.dirname(__file__)
     file_path = os.path.join(path, "fridge-assistant-card.js")
     
-    url_path = "/fridge_assistant_static"
+    url_path = "/fridge_assistant_static/fridge-assistant-card.js"
     if hasattr(hass.http, "async_register_static_paths"):
         from homeassistant.components.http import StaticPathConfig
         await hass.http.async_register_static_paths([
