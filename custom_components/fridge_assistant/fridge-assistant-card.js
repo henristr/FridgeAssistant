@@ -151,9 +151,17 @@ class FridgeAssistantCard extends LitElement {
     return html`
       <div class="product-item">
         <span class="product-name">${item.Name || "Unbekannt"}</span>
-        <span class="product-expiry ${statusClass}">${item.Expire || "---"}</span>
+        <span class="product-expiry ${statusClass}">${this._formatExpiry(item.Expire)}</span>
       </div>
     `;
+  }
+
+  _formatExpiry(value) {
+    if (!value) return "---";
+
+    const datePart = String(value).split("T")[0];
+    const match = datePart.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    return match ? `${match[3]}.${match[2]}.${match[1]}` : String(value);
   }
 
   setConfig(config) {
