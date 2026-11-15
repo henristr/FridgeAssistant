@@ -34,3 +34,6 @@ title: Mein Kühlschrank
 ```
 
 *Falls die Karte nach der Installation nicht sofort erscheint, lade die Seite im Browser einmal komplett neu (**Strg + F5**).*
+
+Falls Home Assistant die Karte weiterhin nicht anbietet, füge unter **Einstellungen → Dashboards → Ressourcen** die Ressource
+`/fridge_assistant_static/fridge-assistant-card.js` mit dem Typ **JavaScript-Modul** hinzu und lade das Dashboard neu.
