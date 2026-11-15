@@ -117,7 +117,7 @@ class FridgeAssistantCard extends LitElement {
     }
 
     const items = [...(stateObj.attributes.liste || [])];
-    items.sort((a, b) => (a.Expire || "9999-12-31").localeCompare(b.Expire || "9999-12-31"));
+    items.sort((a, b) => this._expirySortValue(a.Expire) - this._expirySortValue(b.Expire));
 
     return html`
       <ha-card>
@@ -138,7 +138,7 @@ class FridgeAssistantCard extends LitElement {
   _renderItem(item) {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    const expiry = item.Expire ? new Date(item.Expire) : null;
+    const expiry = this._parseExpiry(item.Expire);
 
     let statusClass = "";
     if (expiry) {
@@ -159,9 +159,40 @@ class FridgeAssistantCard extends LitElement {
   _formatExpiry(value) {
     if (!value) return "---";
 
-    const datePart = String(value).split("T")[0];
-    const match = datePart.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    return match ? `${match[3]}.${match[2]}.${match[1]}` : String(value);
+    const date = this._parseExpiry(value);
+    if (!date) return String(value);
+
+    return `${String(date.getDate()).padStart(2, "0")}.${String(date.getMonth() + 1).padStart(2, "0")}.${date.getFullYear()}`;
+  }
+
+  _parseExpiry(value) {
+    if (!value) return null;
+
+    const text = String(value);
+    const european = text.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+    if (european) {
+      const date = new Date(Number(european[3]), Number(european[2]) - 1, Number(european[1]));
+      return date.getFullYear() === Number(european[3])
+        && date.getMonth() === Number(european[2]) - 1
+        && date.getDate() === Number(european[1])
+        ? date
+        : null;
+    }
+
+    const iso = text.match(/^(\d{4})-(\d{2})-(\d{2})(?:T.*)?$/);
+    if (!iso) return null;
+
+    const date = new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
+    return date.getFullYear() === Number(iso[1])
+      && date.getMonth() === Number(iso[2]) - 1
+      && date.getDate() === Number(iso[3])
+      ? date
+      : null;
+  }
+
+  _expirySortValue(value) {
+    const date = this._parseExpiry(value);
+    return date ? date.getTime() : Number.MAX_SAFE_INTEGER;
   }
 
   setConfig(config) {

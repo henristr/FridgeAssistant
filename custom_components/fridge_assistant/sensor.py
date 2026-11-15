@@ -1,5 +1,6 @@
 import logging
 import functools
+from datetime import date, datetime
 import requests
 
 from homeassistant.components.sensor import SensorEntity
@@ -10,6 +11,44 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _format_expiry(value):
+    """Return expiry dates in the format used by the integration."""
+    if not value:
+        return value
+
+    text = str(value)
+    try:
+        return date.fromisoformat(text).strftime("%d.%m.%Y")
+    except ValueError:
+        try:
+            return datetime.fromisoformat(text).strftime("%d.%m.%Y")
+        except ValueError:
+            pass
+    return value
+
+
+def _expiry_sort_key(product):
+    """Sort ISO and localized expiry dates chronologically."""
+    value = product.get("Expire")
+    if not value:
+        return date.max
+
+    text = str(value)
+    try:
+        return date.fromisoformat(text)
+    except ValueError:
+        try:
+            return datetime.fromisoformat(text).date()
+        except ValueError:
+            pass
+
+    try:
+        return datetime.strptime(text, "%d.%m.%Y").date()
+    except ValueError:
+        return date.max
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -50,7 +89,12 @@ class OpenSmartFridgeSensor(SensorEntity):
             if not isinstance(data, list):
                 raise ValueError("API response is not a product list")
 
-            products = sorted(data, key=lambda item: item.get("Expire") or "9999-12-31")
+            products = []
+            for item in data:
+                product = dict(item)
+                product["Expire"] = _format_expiry(product.get("Expire"))
+                products.append(product)
+            products.sort(key=_expiry_sort_key)
             self._attr_native_value = len(products)
             self._attr_extra_state_attributes["liste"] = products
             

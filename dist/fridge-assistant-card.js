@@ -1,11 +1,11 @@
 /*
   Fridge Assistant Lovelace Card
-  Version: 1.2.0
-  Diagnose: Schau in die Browser-Konsole (F12) für "FRIDGE-ASSISTANT-CARD LOADED"
+  Version: 1.3.0
+  With Visual Editor Support
 */
 
 console.info(
-  "%c FRIDGE-ASSISTANT-CARD %c 1.2.0 ",
+  "%c FRIDGE-ASSISTANT-CARD %c 1.3.0 ",
   "color: white; background: #ef5350; font-weight: 700;",
   "color: #ef5350; background: white; font-weight: 700;"
 );
@@ -21,6 +21,17 @@ class FridgeAssistantCard extends LitElement {
     return {
       hass: { type: Object },
       config: { type: Object },
+    };
+  }
+
+  static async getConfigElement() {
+    return document.createElement("fridge-assistant-card-editor");
+  }
+
+  static getStubConfig() {
+    return {
+      title: "Kühlschrank",
+      entity: "",
     };
   }
 
@@ -40,36 +51,51 @@ class FridgeAssistantCard extends LitElement {
         margin-bottom: 16px;
       }
       .title {
-        font-size: 1.2em;
+        font-size: 1.25em;
         font-weight: 500;
         color: var(--primary-text-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       .count {
         font-size: 0.85em;
         background: var(--secondary-background-color);
-        padding: 2px 8px;
-        border-radius: 10px;
+        padding: 4px 10px;
+        border-radius: 20px;
         color: var(--secondary-text-color);
+        font-weight: 600;
       }
       .product-item {
         display: flex;
         justify-content: space-between;
-        padding: 10px 0;
+        padding: 12px 0;
         border-bottom: 1px solid var(--divider-color, rgba(0,0,0,0.1));
       }
       .product-item:last-child {
         border-bottom: none;
       }
+      .product-name {
+        color: var(--primary-text-color);
+      }
       .product-expiry {
         font-family: monospace;
+        font-size: 0.95em;
       }
       .expired { color: #ef5350; font-weight: bold; }
       .warning { color: #ffa726; }
       .error-box {
         color: white;
         background: #ef5350;
-        padding: 10px;
-        border-radius: 4px;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 0.9em;
+      }
+      .empty-state {
+        text-align: center;
+        color: var(--secondary-text-color);
+        padding: 20px 0;
+        font-style: italic;
       }
     `;
   }
@@ -84,24 +110,24 @@ class FridgeAssistantCard extends LitElement {
       return html`
         <ha-card>
           <div class="error-box">
-            Entität nicht gefunden: ${entityId}
+            <b>Entität nicht gefunden:</b> ${entityId || "Bitte in den Einstellungen wählen"}
           </div>
         </ha-card>
       `;
     }
 
     const items = [...(stateObj.attributes.liste || [])];
-    items.sort((a, b) => (a.Expire || "9999-12-31").localeCompare(b.Expire || "9999-12-31"));
+    items.sort((a, b) => this._expirySortValue(a.Expire) - this._expirySortValue(b.Expire));
 
     return html`
       <ha-card>
         <div class="header">
           <div class="title">${this.config.title || "Kühlschrank"}</div>
-          <div class="count">${items.length}</div>
+          <div class="count">${items.length} Produkte</div>
         </div>
         <div class="list">
           ${items.length === 0
-        ? html`<div style="text-align:center; padding: 20px;">Leer</div>`
+        ? html`<div class="empty-state">Keine Produkte verfügbar</div>`
         : items.map(item => this._renderItem(item))
       }
         </div>
@@ -112,19 +138,20 @@ class FridgeAssistantCard extends LitElement {
   _renderItem(item) {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    const expiry = item.Expire ? new Date(item.Expire) : null;
+    const expiry = this._parseExpiry(item.Expire);
 
-    let style = "";
+    let statusClass = "";
     if (expiry) {
-      const days = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
-      if (days < 0) style = "expired";
-      else if (days <= 3) style = "warning";
+      const diffTime = expiry - now;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (diffDays < 0) statusClass = "expired";
+      else if (diffDays <= 3) statusClass = "warning";
     }
 
     return html`
       <div class="product-item">
-        <span>${item.Name || "Unbekannt"}</span>
-        <span class="product-expiry ${style}">${this._formatExpiry(item.Expire)}</span>
+        <span class="product-name">${item.Name || "Unbekannt"}</span>
+        <span class="product-expiry ${statusClass}">${this._formatExpiry(item.Expire)}</span>
       </div>
     `;
   }
@@ -132,13 +159,43 @@ class FridgeAssistantCard extends LitElement {
   _formatExpiry(value) {
     if (!value) return "---";
 
-    const datePart = String(value).split("T")[0];
-    const match = datePart.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    return match ? `${match[3]}.${match[2]}.${match[1]}` : String(value);
+    const date = this._parseExpiry(value);
+    if (!date) return String(value);
+
+    return `${String(date.getDate()).padStart(2, "0")}.${String(date.getMonth() + 1).padStart(2, "0")}.${date.getFullYear()}`;
+  }
+
+  _parseExpiry(value) {
+    if (!value) return null;
+
+    const text = String(value);
+    const european = text.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+    if (european) {
+      const date = new Date(Number(european[3]), Number(european[2]) - 1, Number(european[1]));
+      return date.getFullYear() === Number(european[3])
+        && date.getMonth() === Number(european[2]) - 1
+        && date.getDate() === Number(european[1])
+        ? date
+        : null;
+    }
+
+    const iso = text.match(/^(\d{4})-(\d{2})-(\d{2})(?:T.*)?$/);
+    if (!iso) return null;
+
+    const date = new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
+    return date.getFullYear() === Number(iso[1])
+      && date.getMonth() === Number(iso[2]) - 1
+      && date.getDate() === Number(iso[3])
+      ? date
+      : null;
+  }
+
+  _expirySortValue(value) {
+    const date = this._parseExpiry(value);
+    return date ? date.getTime() : Number.MAX_SAFE_INTEGER;
   }
 
   setConfig(config) {
-    if (!config.entity) throw new Error("Entity erforderlich");
     this.config = config;
   }
 
@@ -147,11 +204,103 @@ class FridgeAssistantCard extends LitElement {
   }
 }
 
+/* Editor Component */
+class FridgeAssistantCardEditor extends LitElement {
+  static get properties() {
+    return {
+      hass: { type: Object },
+      _config: { type: Object },
+    };
+  }
+
+  setConfig(config) {
+    this._config = config;
+  }
+
+  get _entity() {
+    return this._config.entity || "";
+  }
+
+  get _title() {
+    return this._config.title || "";
+  }
+
+  render() {
+    if (!this.hass) return html``;
+
+    // Filter entities to show only sensors
+    const entities = Object.keys(this.hass.states)
+      .filter(eid => eid.startsWith("sensor.opensmartfridge_") || eid.startsWith("sensor.fridgeassistant_"))
+      .sort();
+
+    return html`
+      <div class="card-config">
+        <div class="option">
+          <ha-select
+            label="Entität (Sensor)"
+            .value="${this._entity}"
+            .configValue="${"entity"}"
+            @selected="${this._valueChanged}"
+            @closed="${(e) => e.stopPropagation()}"
+            style="width: 100%; margin-bottom: 20px;"
+          >
+            ${entities.map(eid => html`<mwc-list-item .value="${eid}">${eid}</mwc-list-item>`)}
+          </ha-select>
+        </div>
+        <div class="option">
+          <ha-textfield
+            label="Titel"
+            .value="${this._title}"
+            .configValue="${"title"}"
+            @input="${this._valueChanged}"
+            style="width: 100%;"
+          ></ha-textfield>
+        </div>
+      </div>
+    `;
+  }
+
+  _valueChanged(ev) {
+    if (!this._config || !this.hass) return;
+    const target = ev.target;
+    if (this[`_${target.configValue}`] === target.value) return;
+
+    if (target.configValue) {
+      this._config = {
+        ...this._config,
+        [target.configValue]: target.value,
+      };
+    }
+
+    const event = new CustomEvent("config-changed", {
+      detail: { config: this._config },
+      bubbles: true,
+      composed: true,
+    });
+    this.dispatchEvent(event);
+  }
+
+  static get styles() {
+    return css`
+      .card-config {
+        display: flex;
+        flex-direction: column;
+        padding: 8px;
+      }
+      .option {
+        padding: 4px 0;
+      }
+    `;
+  }
+}
+
 customElements.define("fridge-assistant-card", FridgeAssistantCard);
+customElements.define("fridge-assistant-card-editor", FridgeAssistantCardEditor);
 
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "fridge-assistant-card",
   name: "Fridge Assistant Card",
-  description: "Liste der Produkte aus dem Kühlschrank",
+  preview: true,
+  description: "Zeigt ablaufende Produkte aus deinem Kühlschrank übersichtlich an.",
 });
