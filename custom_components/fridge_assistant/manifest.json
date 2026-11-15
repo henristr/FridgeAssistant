@@ -1,6 +1,6 @@
 {
   "domain": "fridge_assistant",
-  "name": "FridgeAssistant",
+  "name": "OpenSmartFridge",
   "version": "1.1.0",
   "documentation": "https://github.com/henristr/FridgeAssistant",
   "issue_tracker": "https://github.com/henristr/FridgeAssistant/issues",

@@ -91,7 +91,7 @@ class FridgeAssistantCard extends LitElement {
     }
 
     const items = [...(stateObj.attributes.liste || [])];
-    items.sort((a, b) => (a.ablauf || "9").localeCompare(b.ablauf || "9"));
+    items.sort((a, b) => (a.Expire || "9999-12-31").localeCompare(b.Expire || "9999-12-31"));
 
     return html`
       <ha-card>
@@ -112,7 +112,7 @@ class FridgeAssistantCard extends LitElement {
   _renderItem(item) {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    const expiry = item.ablauf ? new Date(item.ablauf) : null;
+    const expiry = item.Expire ? new Date(item.Expire) : null;
 
     let style = "";
     if (expiry) {
@@ -123,8 +123,8 @@ class FridgeAssistantCard extends LitElement {
 
     return html`
       <div class="product-item">
-        <span>${item.name || "Unbekannt"}</span>
-        <span class="product-expiry ${style}">${item.ablauf || "---"}</span>
+        <span>${item.Name || "Unbekannt"}</span>
+        <span class="product-expiry ${style}">${item.Expire || "---"}</span>
       </div>
     `;
   }

@@ -117,7 +117,7 @@ class FridgeAssistantCard extends LitElement {
     }
 
     const items = [...(stateObj.attributes.liste || [])];
-    items.sort((a, b) => (a.ablauf || "9999-12-31").localeCompare(b.ablauf || "9999-12-31"));
+    items.sort((a, b) => (a.Expire || "9999-12-31").localeCompare(b.Expire || "9999-12-31"));
 
     return html`
       <ha-card>
@@ -138,7 +138,7 @@ class FridgeAssistantCard extends LitElement {
   _renderItem(item) {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    const expiry = item.ablauf ? new Date(item.ablauf) : null;
+    const expiry = item.Expire ? new Date(item.Expire) : null;
 
     let statusClass = "";
     if (expiry) {
@@ -150,8 +150,8 @@ class FridgeAssistantCard extends LitElement {
 
     return html`
       <div class="product-item">
-        <span class="product-name">${item.name || "Unbekannt"}</span>
-        <span class="product-expiry ${statusClass}">${item.ablauf || "---"}</span>
+        <span class="product-name">${item.Name || "Unbekannt"}</span>
+        <span class="product-expiry ${statusClass}">${item.Expire || "---"}</span>
       </div>
     `;
   }
@@ -191,7 +191,7 @@ class FridgeAssistantCardEditor extends LitElement {
 
     // Filter entities to show only sensors
     const entities = Object.keys(this.hass.states)
-      .filter(eid => eid.startsWith("sensor.fridgeassistant_"))
+      .filter(eid => eid.startsWith("sensor.opensmartfridge_") || eid.startsWith("sensor.fridgeassistant_"))
       .sort();
 
     return html`
